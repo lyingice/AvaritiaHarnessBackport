@@ -1,8 +1,10 @@
 package com.aharness.gametest;
 
 import com.aharness.AvaritiaHarnessBackport;
-import com.aharness.item.NeutronHarnessItem;
 import com.aharness.compat.HGLMixinState;
+import com.aharness.config.AHBConfig;
+import com.aharness.harness.NeutronHarnessHandler;
+import com.aharness.item.NeutronHarnessItem;
 import com.aharness.registry.AHBItems;
 import committee.nova.mods.avaritia.common.crafting.input.ExtremeSmithingRecipeInput;
 import committee.nova.mods.avaritia.common.crafting.recipe.ExtremeSmithingRecipe;
@@ -103,11 +105,118 @@ public final class AHBCompatGameTests {
                 ResourceLocation.fromNamespaceAndPath(AvaritiaHarnessBackport.MOD_ID, "neutron_harness"));
         living.setItemSlot(EquipmentSlot.CHEST, new ItemStack(harness));
 
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.moveTo(living.getX(), living.getY(), living.getZ(), 0.0F, 0.0F);
+        player.startRiding(living, true);
+        if (living.getFirstPassenger() != player) {
+            helper.fail("Mock player failed to ride the HGL ghast");
+            return;
+        }
+
         HGLMixinState.speedApplied = false;
         living.travel(Vec3.ZERO);
 
         helper.assertTrue(HGLMixinState.speedApplied,
-                "HGL speed mixin must apply when the harness is equipped in the CHEST slot");
+                "HGL speed mixin must apply while a player rides the harnessed ghast");
+        helper.succeed();
+    }
+
+    @GameTest(template = "ahb_empty", timeoutTicks = 60)
+    public static void ridingSpeedModifierApplies(GameTestHelper helper) {
+        EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(
+                ResourceLocation.fromNamespaceAndPath("minecraft", "happy_ghast"));
+        Entity created = type.create(helper.getLevel());
+        if (!(created instanceof LivingEntity living)) {
+            helper.fail("Vanilla Backport happy ghast is missing");
+            return;
+        }
+        living.moveTo(helper.absolutePos(new BlockPos(1, 2, 1)), 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(living);
+        living.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AHBItems.NEUTRON_HARNESS.get()));
+
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.moveTo(living.getX(), living.getY(), living.getZ(), 0.0F, 0.0F);
+        player.startRiding(living, true);
+        if (living.getFirstPassenger() != player) {
+            helper.fail("Mock player failed to ride the harnessed ghast");
+            return;
+        }
+
+        NeutronHarnessHandler.updateRidingSpeed(living);
+        AttributeInstance flying = living.getAttribute(Attributes.FLYING_SPEED);
+        AttributeModifier modifier = flying == null ? null : flying.getModifier(NeutronHarnessItem.FLYING_SPEED_ID);
+        helper.assertTrue(modifier != null && modifier.amount() == 0.45D,
+                "Riding speed modifier must be +0.45");
+
+        living.ejectPassengers();
+        NeutronHarnessHandler.updateRidingSpeed(living);
+        helper.assertTrue(flying == null || flying.getModifier(NeutronHarnessItem.FLYING_SPEED_ID) == null,
+                "Riding speed modifier must be removed when nobody rides the ghast");
+        helper.succeed();
+    }
+
+    @GameTest(template = "ahb_empty", timeoutTicks = 60)
+    public static void damageReductionApplies(GameTestHelper helper) {
+        EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(
+                ResourceLocation.fromNamespaceAndPath("minecraft", "happy_ghast"));
+        Entity created = type.create(helper.getLevel());
+        if (!(created instanceof LivingEntity living)) {
+            helper.fail("Vanilla Backport happy ghast is missing");
+            return;
+        }
+        living.moveTo(helper.absolutePos(new BlockPos(1, 2, 1)), 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(living);
+
+        living.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AHBItems.NEUTRON_HARNESS.get()));
+        float expected = (float) (100.0D * (1.0D - AHBConfig.GHAST_DAMAGE_REDUCTION.get()));
+        float reduced = NeutronHarnessHandler.modifyIncomingDamage(living, 100.0F);
+        helper.assertTrue(Math.abs(reduced - expected) < 0.001F,
+                "Harnessed ghast should take " + expected + " damage, got " + reduced);
+
+        living.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        helper.assertTrue(NeutronHarnessHandler.modifyIncomingDamage(living, 100.0F) == 100.0F,
+                "Unharnessed ghast must not get the damage reduction");
+        helper.succeed();
+    }
+
+    @GameTest(template = "ahb_empty", timeoutTicks = 60)
+    public static void shieldProtectionApplies(GameTestHelper helper) {
+        EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(
+                ResourceLocation.fromNamespaceAndPath("minecraft", "happy_ghast"));
+        Entity created = type.create(helper.getLevel());
+        if (!(created instanceof LivingEntity anchor)) {
+            helper.fail("Vanilla Backport happy ghast is missing");
+            return;
+        }
+        anchor.moveTo(helper.absolutePos(new BlockPos(1, 2, 1)), 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(anchor);
+        anchor.setItemSlot(EquipmentSlot.CHEST, new ItemStack(AHBItems.NEUTRON_HARNESS.get()));
+
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        NeutronHarnessHandler.clearShieldsForTest();
+        NeutronHarnessHandler.registerShieldForTest(player, anchor, 200L);
+
+        Entity cowEntity = EntityType.COW.create(helper.getLevel());
+        if (!(cowEntity instanceof LivingEntity cow)) {
+            helper.fail("Could not create a cow");
+            return;
+        }
+        cow.moveTo(helper.absolutePos(new BlockPos(2, 2, 1)), 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(cow);
+
+        Entity zombieEntity = EntityType.ZOMBIE.create(helper.getLevel());
+        if (!(zombieEntity instanceof LivingEntity zombie)) {
+            helper.fail("Could not create a zombie");
+            return;
+        }
+        zombie.moveTo(helper.absolutePos(new BlockPos(3, 2, 1)), 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(zombie);
+
+        helper.assertTrue(NeutronHarnessHandler.isEntityProtected(anchor), "Shield anchor must be protected");
+        helper.assertTrue(NeutronHarnessHandler.isEntityProtected(cow), "Friendly entity inside the shield must be protected");
+        helper.assertTrue(!NeutronHarnessHandler.isEntityProtected(zombie), "Enemy entities must not be protected by the shield");
+
+        NeutronHarnessHandler.clearShieldsForTest();
         helper.succeed();
     }
 
@@ -184,12 +293,6 @@ public final class AHBCompatGameTests {
                     toughness == null ? null : toughness.getModifier(NeutronHarnessItem.TOUGHNESS_ID);
             helper.assertTrue(toughnessModifier != null && toughnessModifier.amount() == 10.0D,
                     "Harness toughness modifier must be +10 for " + entityId);
-
-            AttributeInstance flyingSpeed = living.getAttribute(Attributes.FLYING_SPEED);
-            AttributeModifier flyingSpeedModifier =
-                    flyingSpeed == null ? null : flyingSpeed.getModifier(NeutronHarnessItem.FLYING_SPEED_ID);
-            helper.assertTrue(flyingSpeedModifier != null && flyingSpeedModifier.amount() == 0.95D,
-                    "Harness flying speed modifier must be +0.95 for " + entityId);
 
             // Attributes.ARMOR is a RangedAttribute capped at 30 in 1.20.1/1.21.1,
             // so the effective value is 30 even though the item grants +50.

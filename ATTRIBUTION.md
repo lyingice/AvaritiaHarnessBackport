@@ -10,6 +10,8 @@ The Neutron Harness / 星空挽具 item concept, item texture and entity texture
 
 The harness item behavior (CHEST-slot attributes, Protection X, fire resistance, immortal item drop, extreme smithing recipe) is based on Re:Avaritia's `NeutronHarnessItem` implementation on its 1.21.11 / 26.x branches.
 
+The 26.1.2 mechanics (80% happy ghast damage reduction, harness shield, summon mount, +0.45 riding speed) are ported from Re:Avaritia's 26.1.2 branch classes `NeutronHarnessHandler`, `HarnessShieldState`, `HarnessOwner`, `C2SHarnessActionPacket` and `ModDataAttachments`, which are also covered by the MIT license.
+
 ## Vanilla Backport
 
 Compatibility is implemented only through public data formats:

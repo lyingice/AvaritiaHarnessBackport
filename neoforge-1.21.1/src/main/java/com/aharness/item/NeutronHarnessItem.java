@@ -54,9 +54,6 @@ public class NeutronHarnessItem extends Item implements InitEnchantItem {
                         .add(Attributes.ARMOR_TOUGHNESS,
                                 new AttributeModifier(TOUGHNESS_ID, 10.0D, AttributeModifier.Operation.ADD_VALUE),
                                 EquipmentSlotGroup.CHEST)
-                        .add(Attributes.FLYING_SPEED,
-                                new AttributeModifier(FLYING_SPEED_ID, 0.95D, AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.CHEST)
                         .build()));
     }
 

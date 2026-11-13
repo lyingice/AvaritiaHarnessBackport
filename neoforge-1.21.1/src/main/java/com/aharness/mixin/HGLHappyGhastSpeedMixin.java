@@ -5,6 +5,7 @@ import com.aharness.compat.HGLMixinState;
 import com.aharness.registry.AHBItems;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,12 +24,13 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Pseudo
 @Mixin(targets = "com.iafenvoy.ghast.entity.HappyGhastEntity")
 public abstract class HGLHappyGhastSpeedMixin {
-    private static final float SPEED_MULTIPLIER = (0.32F + 0.95F) / 0.32F;
+    private static final float SPEED_MULTIPLIER = (0.32F + 0.45F) / 0.32F;
 
     @ModifyConstant(method = "travel", constant = @Constant(floatValue = 0.09F), require = 0)
     private float ahb$applyHarnessSpeed(float original) {
         LivingEntity self = (LivingEntity) (Object) this;
-        if (!self.getItemBySlot(EquipmentSlot.CHEST).is(AHBItems.NEUTRON_HARNESS.get())) {
+        if (!(self.getFirstPassenger() instanceof Player)
+                || !self.getItemBySlot(EquipmentSlot.CHEST).is(AHBItems.NEUTRON_HARNESS.get())) {
             return original;
         }
         if (!HGLMixinState.speedApplied) {

@@ -56,8 +56,6 @@ public class NeutronHarnessItem extends Item implements InitEnchantItem {
                 ARMOR_UUID, "Neutron harness armor", 50.0D, AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(
                 TOUGHNESS_UUID, "Neutron harness toughness", 10.0D, AttributeModifier.Operation.ADDITION));
-        builder.put(Attributes.FLYING_SPEED, new AttributeModifier(
-                FLYING_SPEED_UUID, "Neutron harness flying speed", 0.95D, AttributeModifier.Operation.ADDITION));
         return builder.build();
     }
 

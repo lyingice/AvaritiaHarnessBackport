@@ -4,14 +4,15 @@
 > - **Vanilla Backport**（`vanillabackport`）
 > - **Happy Ghast Legacy**（`happy_ghast_legacy`）
 
-## 实现状态（2026-11-12）
+## 实现状态（2026-11-13）
 
 - ✅ **1.21.1 NeoForge**：物品、属性、保护 X、不朽掉落、终焉锻造配方、VB 数据兼容、HGL 交互 + 自定义渲染层全部完成。
-  - 5 个 GameTest 全部通过（物品/标签/配方、保护 X、VB/HGL 属性、配方匹配与产出、HGL 右键装备）。
+  - 9 个 GameTest 全部通过（注册/配方、保护 X、VB/HGL 属性、配方匹配、HGL 右键装备、+0.45 骑乘速度、80% 减伤、护盾保护、HGL 速度 Mixin）。
   - 客户端截图确认 VB 与 HGL 两只快乐恶魂都能正确渲染星空挽具。
-- ✅ **1.20.1 Forge**：同功能移植完成；reobf jar 构建成功；生产 Forge 服务端加载 Re:Avaritia + VB + HGL + Platform + Architectury 成功，两种恶魂的 CHEST 槽均能写入星空挽具。
-- ✅ **HGL 飞行速度**：已加入软失败 Mixin（`@Pseudo` + `@ModifyConstant`），NeoForge GameTest 与 Forge 生产服务端均确认生效（`x3.96875`）。
-- ⏳ **待办**：1.20.1 Forge 客户端视觉复查、Fabric（P6，可选）、发布页/CI。
+- ✅ **1.20.1 Forge**：同功能移植完成；reobf jar 构建成功；生产 Forge 服务端加载 Re:Avaritia + VB + HGL + Platform + Architectury 成功，配置生成，两种恶魂的 CHEST 槽均能写入星空挽具。
+- ✅ **26.1.2 专属机制**：召唤坐骑、立体防御护盾、80% 恶魂减伤、+0.45 骑乘速度已按 `NeutronHarnessHandler` / `HarnessShieldState` / `HarnessOwner` / `C2SHarnessActionPacket` 移植；NeoForge GameTest 验证，Forge 生产服务端加载验证。
+- ✅ **HGL 骑乘速度**：软失败 Mixin（`@Pseudo` + `@ModifyConstant`），仅在玩家骑乘时把 `0.09F` 乘以 `(0.32+0.45)/0.32 ≈ 2.40625`。
+- ⏳ **待办**：1.20.1 Forge 客户端视觉复查、Forge GameTest、Fabric（P6，可选）、发布页/CI。
 
 ---
 
@@ -26,13 +27,13 @@
 | 注册名 | `avaritia:neutron_harness` |
 | 中文名 | 星空挽具（旧名「中子战魂铠」） |
 | 装备槽 | 高版本 `EquipmentSlot.BODY` |
-| 属性 | +50 护甲、+10 盔甲韧性、+0.95 飞行速度 |
+| 属性 | +50 护甲、+10 盔甲韧性；骑乘时 +0.45 飞行速度（26.1.2） |
 | 固定附魔 | 保护 X（通过 `InitEnchantItem` 注入） |
 | 其他 | 火焰抗性、不可损坏、不掉落为普通物品（`ImmortalItemEntity`）、无附魔光效 |
 | 合成 | 终焉锻造台：羽化模板 + 任意挽具 + 缓降药水 + 无瑕核心 + 羽毛 |
 | 贴图 | 物品 16×16；实体 128×128，64×64 UV 布局 |
 
-> 注：MC百科页面提到的「80% 减伤 / 护盾 / 召唤穿铠恶魂 / +0.45 骑乘速度」在 1.21.11 与 26.3 的 `NeutronHarnessItem` 源码中均未找到，暂不作为移植目标；后续如确认属于其他版本/物品，再单独评估。
+> 注：MC百科页面提到的「80% 减伤 / 护盾 / 召唤穿铠恶魂 / +0.45 骑乘速度」**不在 `NeutronHarnessItem` 本身**，而在 26.1.2 分支的 `NeutronHarnessHandler`、`HarnessShieldState`、`HarnessOwner`、`C2SHarnessActionPacket`、`ModDataAttachments` 中。本移植已按 26.1.2 实现。26.1.2 的 item 没有 +0.95 基础飞行速度；+0.45 是骑乘时由 handler 添加。1.21.11/26.3 的 item 有 +0.95 但没有这套 handler；页面把两代内容混在一起，且页面写 5/15 秒与 26.1.2 代码默认 15/20 秒不一致。
 
 ### 1.2 两个快乐恶魂回溯模组
 
@@ -81,6 +82,7 @@ Re:Avaritia 为 **MIT** 许可，可复用其代码与贴图，需保留版权�
 - 属性：
   - 1.21.1：`ItemAttributeModifiers` + `EquipmentSlotGroup.CHEST`
   - 1.20.1：重写 `getDefaultAttributeModifiers(EquipmentSlot.CHEST)`
+  - 仅 +50 护甲 / +10 韧性；+0.45 飞行速度由 `NeutronHarnessHandler` 在玩家骑乘时动态添加/移除（26.1.2 行为）
 - 固定保护 X：
   - 1.21.1 实现 `committee.nova.mods.avaritia.api.iface.item.InitEnchantItem`
   - 1.20.1 实现 `committee.nova.mods.avaritia.api.iface.InitEnchantItem`
@@ -129,11 +131,11 @@ Re:Avaritia 为 **MIT** 许可，可复用其代码与贴图，需保留版权�
    - 仅在 CHEST 槽为本模组物品且非幼年时渲染
    - 不引用 HGL 的 Java 类，避免映射/许可问题
 3. **标签**：把本模组物品加入 `happy_ghast_legacy:harness`，让 HGL 的绳索渲染正常。
-4. **飞行速度（可选，P1.5）**：
+4. **骑乘速度（已实现）**：
    - HGL 的 `travel()` 硬编码 `0.09F`，原版属性不生效
-   - 可加一个软失败 Mixin：`@ModifyConstant(method="travel", constant=@Constant(floatValue=0.09F))`
-   - 默认按 `(0.32+0.95)/0.32 ≈ 3.97x` 缩放，并提供配置项
-   - 若不做，则 HGL 上仅护甲/韧性/保护生效，需在文档中说明
+   - 软失败 Mixin：`@ModifyConstant(method="travel", constant=@Constant(floatValue=0.09F))`
+   - 仅在玩家骑乘时把 `0.09F` 乘以 `(0.32+0.45)/0.32 ≈ 2.40625`
+   - HGL 缺失/实现变化时自动跳过
 
 ### 3.5 双模组共存
 
@@ -233,9 +235,13 @@ AvaritiaHarnessBackport/
 
 ### 7.2 装备与行为
 
-- [ ] VB 快乐恶魂：右键装备、渲染、骑乘、速度、护甲、韧性、保护 X 生效。
-- [ ] HGL 快乐恶魂：右键装备、渲染、骑乘、护甲、韧性、保护 X 生效。
-- [ ] HGL 速度：若实现 P1.5，则速度加成生效；否则文档明确说明。
+- [x] VB 快乐恶魂：右键装备、渲染、骑乘、骑乘速度、护甲、韧性、保护 X 生效。
+- [x] HGL 快乐恶魂：右键装备、渲染、骑乘、护甲、韧性、保护 X、骑乘速度生效。
+- [x] HGL 速度：骑乘时 +0.45 加成生效（x2.40625 Mixin）。
+- [x] 穿铠恶魂受到 80% 减伤。
+- [x] 骑着穿铠恶魂按键展开半径 4 的护盾；范围内友方/中立免伤，敌对不受保护。
+- [x] 腾空按键召唤最近穿铠恶魂并骑乘；不抢其他玩家名下的恶魂。
+- [x] 骑乘时 +0.45 飞行速度；下马后移除。
 - [ ] 幼年恶魂不能装备。
 - [ ] 已装备时再次右键不会重复装备。
 - [ ] 剪刀可取下并返还物品。
@@ -258,7 +264,7 @@ AvaritiaHarnessBackport/
 | 风险 | 影响 | 概率 | 对策 |
 |---|---|---|---|
 | HGL 严格 `instanceof HarnessItem` | 物品无法装备 | 高 | 交互事件拦截 + 自定义渲染层，不引用 HGL 类 |
-| HGL 飞行速度硬编码 | 速度属性无效 | 高 | P1.5 软失败 Mixin `@ModifyConstant`；或文档说明 |
+| HGL 飞行速度硬编码 | 速度属性无效 | 高 | 已用软失败 Mixin 补齐骑乘 +0.45（x2.40625） |
 | 双快乐恶魂实体 | 兼容冲突 | 中 | 按注册名分别处理；双装回归测试 |
 | `minecraft:harnesses` 标签仅 VB 提供 | HGL 单装时配方失效 | 中 | 自定义标签合并两套标签；`required:false` |
 | Re:Avaritia 两版本 API 差异 | 编译/运行错误 | 中 | 分版本源码；锁定 1.4.3 / 1.4.2 |
@@ -277,7 +283,7 @@ AvaritiaHarnessBackport/
 | 1 | 首发版本 | 1.21.1 NeoForge | 1.20.1 Forge 优先 |
 | 2 | 版本/加载器范围 | 1.21.1 Neo + 1.20.1 Forge | 再加 1.20.1 Fabric |
 | 3 | Re:Avaritia 依赖 | 硬依赖（配方/材料/API 一致） | 软依赖或独立实现 |
-| 4 | HGL 飞行速度 | P1.5 加软失败 Mixin | MVP 先不做，仅文档说明 |
+| 4 | HGL 飞行速度 | 已实现：骑乘 +0.45 软失败 Mixin | - |
 | 5 | 物品中文名 | 星空挽具（英文 Neutron Harness） | 保留旧名「中子战魂铠」 |
 | 6 | 无回溯模组时 | 配方不可用 + 提示 | 增加备用配方（如皮革） |
 | 7 | 包名/作者命名空间 | `dev.<yourname>.aharness` | 其他 |

@@ -1,3 +1,6 @@
 {
-  "item.avaritia_harness_backport.neutron_harness": "Neutron Harness"
+  "item.avaritia_harness_backport.neutron_harness": "Neutron Harness",
+  "key.avaritia_harness_backport.summon": "Summon Happy Ghast Mount",
+  "key.avaritia_harness_backport.shield": "Deploy Harness Shield",
+  "key.categories.avaritia_harness_backport": "Avaritia Harness Backport"
 }

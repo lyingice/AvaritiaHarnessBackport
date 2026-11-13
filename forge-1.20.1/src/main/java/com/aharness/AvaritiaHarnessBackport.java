@@ -1,12 +1,16 @@
 package com.aharness;
 
 import com.aharness.compat.HGLCompat;
+import com.aharness.config.AHBConfig;
+import com.aharness.net.AHBNetwork;
 import com.aharness.registry.AHBItems;
 import com.mojang.logging.LogUtils;
 import committee.nova.mods.avaritia.init.registry.ModCreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
@@ -19,11 +23,15 @@ public final class AvaritiaHarnessBackport {
     public AvaritiaHarnessBackport() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AHBItems.register(modEventBus);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AHBConfig.SPEC);
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.addListener(HGLCompat::onEntityInteract);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> ModCreativeModeTabs.ACCEPT_ITEM.add(AHBItems.NEUTRON_HARNESS));
+        event.enqueueWork(() -> {
+            ModCreativeModeTabs.ACCEPT_ITEM.add(AHBItems.NEUTRON_HARNESS);
+            AHBNetwork.register();
+        });
     }
 }
