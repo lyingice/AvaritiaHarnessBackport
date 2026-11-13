@@ -1,0 +1,26 @@
+{
+  "type": "avaritia:extreme_smithing",
+  "addition": [
+    {
+      "type": "forge:nbt",
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:slow_falling\"}"
+    },
+    {
+      "item": "avaritia:enhancement_core"
+    },
+    {
+      "item": "minecraft:feather"
+    }
+  ],
+  "base": {
+    "tag": "avaritia_harness_backport:harnesses"
+  },
+  "result": {
+    "item": "avaritia_harness_backport:neutron_harness",
+    "count": 1
+  },
+  "template": {
+    "item": "avaritia:upgrade_smithing_template"
+  }
+}

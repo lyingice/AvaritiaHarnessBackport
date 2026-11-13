@@ -1,0 +1,7 @@
+{
+  "mappings": {
+    "com/aharness/mixin/HGLHappyGhastSpeedMixin": {
+      "travel": "Lcom/iafenvoy/ghast/entity/HappyGhastEntity;m_7023_(Lnet/minecraft/world/phys/Vec3;)V"
+    }
+  }
+}

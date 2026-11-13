@@ -1,0 +1,38 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "minecraft:white_harness", "required": false },
+    { "id": "minecraft:orange_harness", "required": false },
+    { "id": "minecraft:magenta_harness", "required": false },
+    { "id": "minecraft:light_blue_harness", "required": false },
+    { "id": "minecraft:yellow_harness", "required": false },
+    { "id": "minecraft:lime_harness", "required": false },
+    { "id": "minecraft:pink_harness", "required": false },
+    { "id": "minecraft:gray_harness", "required": false },
+    { "id": "minecraft:light_gray_harness", "required": false },
+    { "id": "minecraft:cyan_harness", "required": false },
+    { "id": "minecraft:purple_harness", "required": false },
+    { "id": "minecraft:blue_harness", "required": false },
+    { "id": "minecraft:brown_harness", "required": false },
+    { "id": "minecraft:green_harness", "required": false },
+    { "id": "minecraft:red_harness", "required": false },
+    { "id": "minecraft:black_harness", "required": false },
+
+    { "id": "happy_ghast_legacy:white_harness", "required": false },
+    { "id": "happy_ghast_legacy:orange_harness", "required": false },
+    { "id": "happy_ghast_legacy:magenta_harness", "required": false },
+    { "id": "happy_ghast_legacy:light_blue_harness", "required": false },
+    { "id": "happy_ghast_legacy:yellow_harness", "required": false },
+    { "id": "happy_ghast_legacy:lime_harness", "required": false },
+    { "id": "happy_ghast_legacy:pink_harness", "required": false },
+    { "id": "happy_ghast_legacy:gray_harness", "required": false },
+    { "id": "happy_ghast_legacy:light_gray_harness", "required": false },
+    { "id": "happy_ghast_legacy:cyan_harness", "required": false },
+    { "id": "happy_ghast_legacy:purple_harness", "required": false },
+    { "id": "happy_ghast_legacy:blue_harness", "required": false },
+    { "id": "happy_ghast_legacy:brown_harness", "required": false },
+    { "id": "happy_ghast_legacy:green_harness", "required": false },
+    { "id": "happy_ghast_legacy:red_harness", "required": false },
+    { "id": "happy_ghast_legacy:black_harness", "required": false }
+  ]
+}

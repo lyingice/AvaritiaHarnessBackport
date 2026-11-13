@@ -1,0 +1,94 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev'
+}
+
+base {
+    archivesName = 'avaritia_harness_backport-neoforge'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+sourceSets {
+    gameTest
+}
+
+configurations {
+    gameTestImplementation.extendsFrom implementation
+    gameTestCompileOnly.extendsFrom compileOnly
+    gameTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+neoForge {
+    version = rootProject.findProperty('neo_version')
+
+    addModdingDependenciesTo sourceSets.gameTest
+
+    parchment {
+        mappingsVersion = rootProject.findProperty('parchment_mappings_version')
+        minecraftVersion = rootProject.findProperty('parchment_minecraft_version')
+    }
+
+    mods {
+        "avaritia_harness_backport" {
+            sourceSet(sourceSets.main)
+        }
+        "avaritia_harness_backport_gametest" {
+            sourceSet(sourceSets.gameTest)
+        }
+    }
+
+    runs {
+        client {
+            client()
+        }
+
+        // Optional local visual regression run. It expects a save named "新的世界"
+        // under neoforge-1.21.1/run/saves and writes a screenshot to run/screenshots.
+        visualTestClient {
+            client()
+            programArguments.addAll '--quickPlaySingleplayer', '新的世界'
+            systemProperty 'ahb.visualTest', 'true'
+        }
+
+        server {
+            server()
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            sourceSet = sourceSets.gameTest
+            loadedMods = [mods."avaritia_harness_backport", mods."avaritia_harness_backport_gametest"]
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'avaritia_harness_backport'
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+}
+
+dependencies {
+    // Re:Avaritia is the required parent mod. 1.4.4 is the latest 1.21.1 build and still has no harness.
+    implementation 'maven.modrinth:re-avaritia:1.21.1-1.4.4-release'
+
+    gameTestImplementation sourceSets.main.output
+
+    // Optional compatibility mods, enabled for local run testing.
+    // Modrinth Maven can resolve the wrong loader when a version has several jars,
+    // so the exact NeoForge files are kept in libs/ (gitignored) instead.
+    runtimeOnly files('libs/VanillaBackport-neoforge-1.21.1-1.2.2.jar')
+    runtimeOnly files('libs/Platform-neoforge-1.21.1-1.4.2.jar')
+    runtimeOnly files('libs/happy_ghast_legacy-1.8-1.21.1-neoforge.jar')
+    runtimeOnly 'maven.modrinth:architectury-api:13.0.11+neoforge'
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': 'Avaritia Harness Backport',
+            'Implementation-Version': project.version
+        )
+    }
+}

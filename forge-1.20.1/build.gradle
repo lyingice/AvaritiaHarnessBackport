@@ -1,0 +1,70 @@
+plugins {
+    id 'java-library'
+    id 'net.minecraftforge.gradle'
+}
+
+version = "${rootProject.findProperty('mc_1201')}-${rootProject.findProperty('mod_version')}"
+
+base {
+    archivesName = 'avaritia_harness_backport-forge'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    copyIdeResources = true
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            mods {
+                avaritia_harness_backport {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            mods {
+                avaritia_harness_backport {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.20'
+
+    // Re:Avaritia 1.20.1 Forge. 1.4.4 is the latest 1.20.1 build and still has no harness.
+    // A flatDir coordinate is used so ForgeGradle can deobfuscate the jar; files(...)
+    // dependencies are passed through unchanged.
+    implementation fg.deobf('local:Re-Avaritia-forge-1.20.1-1.4.4-release:1.0')
+
+    // Optional compatibility mods, enabled for local run testing:
+    // runtimeOnly fg.deobf(files('libs/VanillaBackport-forge-1.20.1-1.2.2.jar'))
+    // runtimeOnly fg.deobf(files('libs/Platform-forge-1.20.1-1.4.2.jar'))
+    // runtimeOnly fg.deobf(files('libs/happy_ghast_legacy-1.8-1.20.1-forge.jar'))
+    // runtimeOnly fg.deobf(files('libs/architectury-forge-9.2.14.jar'))
+}
+
+jar {
+    manifest {
+        attributes(
+            'MixinConfigs': 'avaritia_harness_backport.mixins.json',
+            'Implementation-Title': 'Avaritia Harness Backport',
+            'Implementation-Version': project.version
+        )
+    }
+}

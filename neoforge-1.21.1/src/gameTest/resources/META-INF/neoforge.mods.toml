@@ -1,0 +1,38 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "avaritia_harness_backport_gametest"
+version = "1.0"
+displayName = "Avaritia Harness Backport GameTests"
+authors = ""
+description = '''Isolated GameTests for Avaritia Harness Backport. Not packaged in the production jar.'''
+
+[[dependencies."avaritia_harness_backport_gametest"]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.215,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."avaritia_harness_backport_gametest"]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."avaritia_harness_backport_gametest"]]
+modId = "avaritia_harness_backport"
+type = "required"
+versionRange = "[0.1.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies."avaritia_harness_backport_gametest"]]
+modId = "avaritia"
+type = "required"
+versionRange = "[1.4.4,)"
+ordering = "AFTER"
+side = "BOTH"

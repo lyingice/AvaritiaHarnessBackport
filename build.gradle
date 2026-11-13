@@ -1,0 +1,21 @@
+allprojects {
+    group = rootProject.findProperty('mod_group_id') ?: 'com.aharness'
+    version = "${rootProject.findProperty('minecraft_version') ?: '1.21.1'}-${rootProject.findProperty('mod_version') ?: '0.1.0'}"
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Modrinth'
+                    url = 'https://api.modrinth.com/maven'
+                }
+            }
+            filter {
+                includeGroup 'maven.modrinth'
+            }
+        }
+    }
+}

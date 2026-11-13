@@ -1,0 +1,46 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/lyingice/AvaritiaHarnessBackport/issues"
+
+[[mods]]
+modId = "avaritia_harness_backport"
+version = "0.1.0"
+displayName = "Avaritia Harness Backport"
+authors = "lyingice"
+description = '''Backports the Neutron Harness (Starry Harness) from Re:Avaritia to 1.20.1/1.21.1 and makes it work with Vanilla Backport and Happy Ghast Legacy.'''
+
+[[dependencies.avaritia_harness_backport]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.avaritia_harness_backport]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.avaritia_harness_backport]]
+modId = "avaritia"
+mandatory = true
+versionRange = "[1.4.4,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.avaritia_harness_backport]]
+modId = "vanillabackport"
+mandatory = false
+versionRange = "[1.2.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.avaritia_harness_backport]]
+modId = "happy_ghast_legacy"
+mandatory = false
+versionRange = "[1.8,)"
+ordering = "NONE"
+side = "BOTH"

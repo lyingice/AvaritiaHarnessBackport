@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.aharness.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "HGLHappyGhastSpeedMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "minVersion": "0.8"
+}
